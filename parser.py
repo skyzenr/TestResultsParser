@@ -42,23 +42,27 @@ def csv_parser(architecture, test_number, original_file, parsed_file, chuch_dime
     original_file = original_file + extension
 
     with open(original_file) as f:
-        line_number = 1
+        line_number = 0
+        line_in_parsed_file = 0
         for line in f:
             # Avoid to parse headers
-            if line_number == 1:
-                header_row = "architecture;test_number;" + line
-                print(header_row)
-                new_file = write_headers_file(parsed_file + "_chunch_" + str(chunch_number) + extension, header_row)
-                pass
+            if line_number == 0:
+                header_row = "architecture;testNumber;" + line
+                chunch_file = parsed_file + "_chunch_" + str(chunch_number) + extension
+                print("\tCreating chunch file: " + chunch_file)
+                new_file = write_headers_file(chunch_file, header_row)
+                line_number += 1
+                continue
             # End chunch file
-            if line_number % chuch_dimension == 0:
+            if line_in_parsed_file > 0 and line_in_parsed_file % chuch_dimension == 0:
                 chunch_number += 1
-                new_file = write_headers_file(parsed_file + "_chunch_" + str(chunch_number) + extension, header_row)
+                line_in_parsed_file = 0
+                chunch_file = parsed_file + "_chunch_" + str(chunch_number) + extension
+                print("\tCreating chunch file: " + chunch_file)
+                new_file = write_headers_file(chunch_file, header_row)
             write_entry(line, new_file, architecture, test_number)
-            # Increase line number
-            line_number += 1
-            if line == 20:
-                return
+            # Increase line_in_parsed_file
+            line_in_parsed_file += 1
 
 def main():
     if not len(sys.argv) != 2:
@@ -90,7 +94,6 @@ def main():
 
             print("Parsing: " + original_file + extension + " -> " + parsed_file + extension)
             csv_parser(architecture, test_number, original_file, parsed_file, chuch_dimension)
-            return
 
 if __name__ == '__main__':
     main()

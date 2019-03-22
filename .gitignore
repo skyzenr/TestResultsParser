@@ -103,5 +103,8 @@ venv.bak/
 # mypy
 .mypy_cache/
 
+# Mac files
+.DS_Store
+
 # Test folder
 tests
