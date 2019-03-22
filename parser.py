@@ -37,7 +37,7 @@ def write_entry(line, new_file, architecture, test_number):
 def csv_parser(architecture, test_number, original_file, parsed_file, chuch_dimension):
     global extension
     header_row = ""
-    chunch_number = 1
+    chunk_number = 1
 
     original_file = original_file + extension
 
@@ -48,18 +48,18 @@ def csv_parser(architecture, test_number, original_file, parsed_file, chuch_dime
             # Avoid to parse headers
             if line_number == 0:
                 header_row = "architecture,testNumber," + line
-                chunch_file = parsed_file + "_chunch_" + str(chunch_number) + extension
-                print("\tCreating chunch file: " + chunch_file)
-                new_file = write_headers_file(chunch_file, header_row)
+                chunk_file = parsed_file + "_chunk_" + str(chunk_number) + extension
+                print("\tCreating chunk file: " + chunk_file)
+                new_file = write_headers_file(chunk_file, header_row)
                 line_number += 1
                 continue
-            # End chunch file
+            # End chunk file
             if line_in_parsed_file > 0 and line_in_parsed_file % chuch_dimension == 0:
-                chunch_number += 1
+                chunk_number += 1
                 line_in_parsed_file = 0
-                chunch_file = parsed_file + "_chunch_" + str(chunch_number) + extension
-                print("\tCreating chunch file: " + chunch_file)
-                new_file = write_headers_file(chunch_file, header_row)
+                chunk_file = parsed_file + "_chunk_" + str(chunk_number) + extension
+                print("\tCreating chunk file: " + chunk_file)
+                new_file = write_headers_file(chunk_file, header_row)
             write_entry(line, new_file, architecture, test_number)
             # Increase line_in_parsed_file
             line_in_parsed_file += 1
