@@ -25,13 +25,13 @@ def create_folder(directory):
 # Writes header line into a file
 def write_headers_file(file_path, headers):
     with open(file_path, "w") as f:
-        f.write(headers + '\n')
+        f.write(headers)
     return file_path
 
 # Appends a line into a file by adding also the columns: [architecture, test_number]
 def write_entry(line, new_file, architecture, test_number):
     with open(new_file, "a") as f:
-        f.write(architecture + "," + test_number + "," + line + "\n")
+        f.write(architecture + "," + test_number + "," + line)
 
 # Parses a csv file
 def csv_parser(architecture, test_number, original_file, parsed_file, chunk_dimension):
