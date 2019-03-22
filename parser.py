@@ -34,7 +34,7 @@ def write_entry(line, new_file, architecture, test_number):
         f.write(architecture + "," + test_number + "," + line + "\n")
 
 # Parses a csv file
-def csv_parser(architecture, test_number, original_file, parsed_file, chuch_dimension):
+def csv_parser(architecture, test_number, original_file, parsed_file, chunk_dimension):
     global EXTENSION
 
     header_row = ""
@@ -55,9 +55,9 @@ def csv_parser(architecture, test_number, original_file, parsed_file, chuch_dime
                 new_file = write_headers_file(chunk_file, header_row)
                 line_number += 1
                 continue
-            # Condition on chunch_dimension:
+            # Condition on chunk_dimension:
             # If the new file is as big as wanted in term of rows (rows_in_parsed_file)
-            if rows_in_parsed_file > 0 and rows_in_parsed_file % chuch_dimension == 0:
+            if rows_in_parsed_file > 0 and rows_in_parsed_file % chunk_dimension == 0:
                 chunk_number += 1
                 rows_in_parsed_file = 0
                 # Write the header row onto a new file
@@ -83,7 +83,7 @@ def main():
     global FILES_TO_PARSE
     
     architecture = sys.argv[1] # cloud vs on-premise
-    chuch_dimension = int(sys.argv[2]) # es. 2000 means each file has 2000 records
+    chunk_dimension = int(sys.argv[2]) # es. 2000 means each file has 2000 records
 
     list_tests_folders = os.listdir(TEST_FOLDER + "/" + architecture)
     list_tests_folders.sort()
@@ -106,7 +106,7 @@ def main():
             create_folder(new_folder)
 
             print("Parsing: " + original_file + EXTENSION + " -> " + new_file + EXTENSION)
-            csv_parser(architecture, test_number, original_file, new_file, chuch_dimension)
+            csv_parser(architecture, test_number, original_file, new_file, chunk_dimension)
 
 if __name__ == '__main__':
     main()
