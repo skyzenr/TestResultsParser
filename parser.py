@@ -88,7 +88,7 @@ def main():
     list_tests_folders = os.listdir(TEST_FOLDER + "/" + architecture)
     list_tests_folders.sort()
     list_tests_folders = [folder for folder in list_tests_folders if folder.startswith("test")]
-    print("The following folders will be analized: " + list_tests_folders)
+    print("The following folders will be analized: " + str(list_tests_folders))
 
     # For each test
     for test_number in list_tests_folders:
