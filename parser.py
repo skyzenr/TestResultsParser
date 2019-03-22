@@ -8,10 +8,7 @@ $ parser.py on-premise 2000
 """
 
 import os
-import re
 import sys
-import csv
-from urllib.parse import urlparse, parse_qs
 
 extension = ".csv"
 test_folder = "tests"
