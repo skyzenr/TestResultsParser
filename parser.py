@@ -10,87 +10,103 @@ $ parser.py on-premise 2000
 import os
 import sys
 
-extension = ".csv"
-test_folder = "tests"
+EXTENSION = ".csv"
+TEST_FOLDER = "tests"
 NEW_DIRECTORY = "parsed"
-
-files_to_extract = [
+FILES_TO_PARSE = [
     'aggregate_report'
 ]
 
+# Creates a new directory
 def create_folder(directory): 
     if not os.path.exists(directory):
         os.makedirs(directory)
 
+# Writes header line into a file
 def write_headers_file(file_path, headers):
     with open(file_path, "w") as f:
         f.write(headers + '\n')
     return file_path
 
+# Appends a line into a file by adding also the columns: [architecture, test_number]
 def write_entry(line, new_file, architecture, test_number):
     with open(new_file, "a") as f:
         f.write(architecture + "," + test_number + "," + line + "\n")
 
+# Parses a csv file
 def csv_parser(architecture, test_number, original_file, parsed_file, chuch_dimension):
-    global extension
+    global EXTENSION
+
     header_row = ""
     chunk_number = 1
+    original_file = original_file + EXTENSION
 
-    original_file = original_file + extension
-
+    # Read the original file
     with open(original_file) as f:
         line_number = 0
-        line_in_parsed_file = 0
+        rows_in_parsed_file = 0
         for line in f:
-            # Avoid to parse headers
+            # Condition on first row (headers)
             if line_number == 0:
+                # Write the header row onto a new file 
                 header_row = "architecture,testNumber," + line
-                chunk_file = parsed_file + "_chunk_" + str(chunk_number) + extension
+                chunk_file = parsed_file + "_chunk_" + str(chunk_number) + EXTENSION
                 print("\tCreating chunk file: " + chunk_file)
                 new_file = write_headers_file(chunk_file, header_row)
                 line_number += 1
                 continue
-            # End chunk file
-            if line_in_parsed_file > 0 and line_in_parsed_file % chuch_dimension == 0:
+            # Condition on chunch_dimension:
+            # If the new file is as big as wanted in term of rows (rows_in_parsed_file)
+            if rows_in_parsed_file > 0 and rows_in_parsed_file % chuch_dimension == 0:
                 chunk_number += 1
-                line_in_parsed_file = 0
-                chunk_file = parsed_file + "_chunk_" + str(chunk_number) + extension
+                rows_in_parsed_file = 0
+                # Write the header row onto a new file
+                chunk_file = parsed_file + "_chunk_" + str(chunk_number) + EXTENSION
                 print("\tCreating chunk file: " + chunk_file)
                 new_file = write_headers_file(chunk_file, header_row)
+            # Write the row onto the pre-created file
             write_entry(line, new_file, architecture, test_number)
-            # Increase line_in_parsed_file
-            line_in_parsed_file += 1
+            # Increase rows_in_parsed_file
+            rows_in_parsed_file += 1
 
 def main():
+
+    # Print docs if num args is not valid
     if not len(sys.argv) != 2:
         print (__doc__)
         sys.exit(1)
-    global extension
-    global test_folder
-    global files
-    global parsed_folder
-    outputFiles = {}
+
+    # Config
+    global EXTENSION
+    global TEST_FOLDER
+    global NEW_DIRECTORY
+    global FILES_TO_PARSE
+    
     architecture = sys.argv[1] # cloud vs on-premise
     chuch_dimension = int(sys.argv[2]) # es. 2000 means each file has 2000 records
-    list_tests_folders = os.listdir(test_folder + "/" + architecture)
+
+    list_tests_folders = os.listdir(TEST_FOLDER + "/" + architecture)
     list_tests_folders.sort()
     list_tests_folders = [folder for folder in list_tests_folders if folder.startswith("test")]
-    print(list_tests_folders)
+    print("The following folders will be analized: " + list_tests_folders)
 
+    # For each test
     for test_number in list_tests_folders:
-        for file_to_extract in files_to_extract:
+        # For each file to parse
+        for file_to_parse in FILES_TO_PARSE:
 
-            # e.g. tests/on-premise/test1/aggregate_report.csv
-            original_file = test_folder + "/" + architecture + "/" + test_number + "/results/" + file_to_extract
-            # e.g. tests/on-premise/test1/parsed/aggregate_report.csv
-            new_folder = test_folder + "/" + architecture + "/" + test_number + "/" + NEW_DIRECTORY
-            parsed_file =  new_folder + "/" + file_to_extract # No extension needed
+            # e.g. tests/on-premise/test1/aggregate_report (.csv extension will be added later)
+            original_file = TEST_FOLDER + "/" + architecture + "/" + test_number + "/results/" + file_to_parse # No EXTENSION needed
+            # e.g. tests/on-premise/test1/parsed/
+            new_folder = TEST_FOLDER + "/" + architecture + "/" + test_number + "/" + NEW_DIRECTORY
+            # e.g. tests/on-premise/test1/parsed/aggregate_report (.csv extension will be added later)
+            new_file =  new_folder + "/" + file_to_parse
 
             print("Creating new folder: " + new_folder)
             create_folder(new_folder)
 
-            print("Parsing: " + original_file + extension + " -> " + parsed_file + extension)
-            csv_parser(architecture, test_number, original_file, parsed_file, chuch_dimension)
+            print("Parsing: " + original_file + EXTENSION + " -> " + new_file + EXTENSION)
+            csv_parser(architecture, test_number, original_file, new_file, chuch_dimension)
 
 if __name__ == '__main__':
     main()
