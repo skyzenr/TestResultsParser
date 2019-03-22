@@ -32,7 +32,7 @@ def write_headers_file(file_path, headers):
 
 def write_entry(line, new_file, architecture, test_number):
     with open(new_file, "a") as f:
-        f.write(architecture + ";" + test_number + ";" + line + "\n")
+        f.write(architecture + "," + test_number + "," + line + "\n")
 
 def csv_parser(architecture, test_number, original_file, parsed_file, chuch_dimension):
     global extension
@@ -47,7 +47,7 @@ def csv_parser(architecture, test_number, original_file, parsed_file, chuch_dime
         for line in f:
             # Avoid to parse headers
             if line_number == 0:
-                header_row = "architecture;testNumber;" + line
+                header_row = "architecture,testNumber," + line
                 chunch_file = parsed_file + "_chunch_" + str(chunch_number) + extension
                 print("\tCreating chunch file: " + chunch_file)
                 new_file = write_headers_file(chunch_file, header_row)
