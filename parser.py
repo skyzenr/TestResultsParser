@@ -25,6 +25,9 @@ FILES_TO_PARSE = [
     'aggregate_report'
 ]
 COLUMNS_TO_REMOVE = [
+    'threadName',
+    'grpThreads',
+    'allThreads',
     'dataType',
     'URL'
 ]
