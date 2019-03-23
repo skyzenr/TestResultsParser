@@ -3,8 +3,16 @@
 """
 USAGE:
 
+$ parser.py <architecture> <chunk_dimension>
+
+<architecture>: cloud | on-premise
+<chunk_dimension>: number of records for each file (header excluded), -1 if you do not want chuck
+
+Examples:
+
+$ parser.py cloud -1
 $ parser.py cloud 1000
-$ parser.py on-premise 2000
+$ parser.py on-premise 10000
 """
 
 import os
@@ -15,6 +23,10 @@ TEST_FOLDER = "tests"
 NEW_DIRECTORY = "parsed"
 FILES_TO_PARSE = [
     'aggregate_report'
+]
+COLUMNS_TO_REMOVE = [
+    'dataType',
+    'URL'
 ]
 
 # Creates a new directory
@@ -40,6 +52,7 @@ def csv_parser(architecture, test_number, original_file, parsed_file, chunk_dime
     header_row = ""
     chunk_number = 1
     original_file = original_file + EXTENSION
+    removed_indexes = []
 
     # Read the original file
     with open(original_file) as f:
@@ -48,6 +61,13 @@ def csv_parser(architecture, test_number, original_file, parsed_file, chunk_dime
         for line in f:
             # Condition on first row (headers)
             if line_number == 0:
+                # Checks if there are columns to remove
+                if len(COLUMNS_TO_REMOVE) > 0:
+                    columns = line.split(",")
+                    for column in COLUMNS_TO_REMOVE:
+                        removed_indexes.append(columns.index(column))
+                        columns.remove(column)
+                    line = ','.join(columns)
                 # Write the header row onto a new file 
                 header_row = "architecture,testNumber," + line
                 chunk_file = parsed_file + "_chunk_" + str(chunk_number) + EXTENSION
@@ -57,13 +77,19 @@ def csv_parser(architecture, test_number, original_file, parsed_file, chunk_dime
                 continue
             # Condition on chunk_dimension:
             # If the new file is as big as wanted in term of rows (rows_in_parsed_file)
-            if rows_in_parsed_file > 0 and rows_in_parsed_file % chunk_dimension == 0:
+            if chunk_dimension != -1 and rows_in_parsed_file > 0 and rows_in_parsed_file % chunk_dimension == 0:
                 chunk_number += 1
                 rows_in_parsed_file = 0
                 # Write the header row onto a new file
                 chunk_file = parsed_file + "_chunk_" + str(chunk_number) + EXTENSION
                 print("\tCreating chunk file: " + chunk_file)
                 new_file = write_headers_file(chunk_file, header_row)
+            # Checks if there are columns to remove
+            if len(removed_indexes) > 0:
+                columns = line.split(",")
+                for i in removed_indexes:
+                    del columns[i]
+                line = ','.join(columns)
             # Write the row onto the pre-created file
             write_entry(line, new_file, architecture, test_number)
             # Increase rows_in_parsed_file
@@ -72,7 +98,7 @@ def csv_parser(architecture, test_number, original_file, parsed_file, chunk_dime
 def main():
 
     # Print docs if num args is not valid
-    if not len(sys.argv) != 2:
+    if len(sys.argv) != 3:
         print (__doc__)
         sys.exit(1)
 
